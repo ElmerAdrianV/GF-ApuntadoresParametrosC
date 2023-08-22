@@ -19,12 +19,12 @@ struct empleado {
 
 int main()
 {
-    int metodo = 1;
-    while (metodo >= 0) {
-        switch(metodo) {
+    int metodo;
+    do {
+        switch (metodo) {
 
         }
-    }
+    } while (metodo >= 0);
     return 0;
 }
 
