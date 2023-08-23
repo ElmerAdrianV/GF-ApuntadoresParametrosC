@@ -16,7 +16,7 @@ typedef struct libros {
     struct libros* sig;
 } LIB;
 
-void imprimeLibro(LIB* libro) {
+void imprime_libro(LIB* libro) {
     // Imprime los detalles del libro dado
     printf("----------------------------------------------------------------------------------\n");
     printf("ID del libro: %d\n", libro->id_libro);
@@ -27,7 +27,19 @@ void imprimeLibro(LIB* libro) {
     printf("----------------------------------------------------------------------------------\n");
 }
 
-void imprimeTodosLosLibros(LIB* inicio) {
+void mostrar_libro(LIB* inicio) {
+    int id_libro;
+    printf("Ingresa el id del libro que desea que se muestre:\n");
+    printf("Identificador del libro: ");
+    scanf("%d", &id_libro); // Leer el ID del libro
+    LIB* libro = buscar_libro(inicio, id_libro);
+    if (libro->sig != NULL && libro->sig->id_libro == id_libro) {
+        imprime_libro(libro->sig);
+    }
+    //else Lanzar posible excepcion
+}
+
+void los_libros(LIB* inicio) {
     // Encuentra el libro que apunta al libro con la última clave que es menor o igual que la clave dada
 
     if (inicio == NULL) {
@@ -39,7 +51,7 @@ void imprimeTodosLosLibros(LIB* inicio) {
 
         // Recorre la lista mientras no sea NULL y el siguiente libro sea menor o igual a la clave
         while (actual != NULL ) {
-            imprimeLibro(actual);
+            imprime_libro(actual);
             actual = actual->sig; // Avanza al siguiente libro
         }
     }
@@ -66,7 +78,7 @@ LIB* buscar_libro(LIB* inicio, int clave) {
 
 
 
-LIB* crear_libro(int* numLibros) {
+LIB* crear_libro() {
     LIB* newLib = (LIB*)malloc(sizeof(LIB));
 
     // Ingresar detalles del libro
@@ -95,7 +107,6 @@ LIB* crear_libro(int* numLibros) {
 
     newLib->sig = NULL; // Inicializar el puntero 'sig'
 
-    (*numLibros)++; // Incrementar la cantidad de libros
 
     return newLib;
 }
@@ -127,10 +138,10 @@ int main() {
             printf("El número de libros que tenemos es: %d\n", numLibros);
             break;
         case 4:
-            // Implementar la lógica para buscar un libro
+            mostrar_libro(inicio);
             break;
         case 5:
-            imprimeTodosLosLibros(inicio);
+            los_libros(inicio);
             break;
         case -1:
             printf("Saliendo del programa.\n");
