@@ -124,6 +124,21 @@ void insertar_libro(LIB* inicio, int numLibros) {
     numLibros++;
 }
 
+void borrar_libro(LIB* inicio, int numLibros) 
+{
+    int id_libro;
+    printf("Ingresa el id del libro que desea borrar:\n");
+    printf("Identificador del libro: ");
+    scanf("%d", &id_libro); // Leer el ID del libro
+    LIB* libro = buscar_libro(inicio, id_libro);
+    if (libro->sig != NULL && libro->sig->id_libro == id_libro) {
+        LIB* aux = libro->sig;
+        libro->sig = aux->sig;
+        free(aux);
+        numLibros--;
+    }
+    // No se encontro el libro
+}
 int main() {
     int metodo = 0;
     int numLibros = 0; 
@@ -145,7 +160,7 @@ int main() {
             insertar_libro(inicio, numLibros);
             break;
         case 2:
-            // Implementar la lógica para borrar un libro
+            borrar_libro(inicio, numLibros);
             break;
         case 3:
             printf("El número de libros que tenemos es: %d\n", numLibros);
