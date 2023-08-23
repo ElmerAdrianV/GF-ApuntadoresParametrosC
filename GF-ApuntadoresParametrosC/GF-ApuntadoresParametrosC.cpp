@@ -16,25 +16,54 @@ typedef struct libros {
     struct libros* sig;
 } LIB;
 
-LIB* buscar_libro(LIB* inicio, int clave) {
-    //Encuentra el libro con la última clave que es menor o igual que la clave dada
+void imprimeLibro(LIB* libro) {
+    // Imprime los detalles del libro dado
+    printf("----------------------------------------------------------------------------------\n");
+    printf("ID del libro: %d\n", libro->id_libro);
+    printf("Autor: %s %s\n", libro->nombres_autor, libro->apellidos_autor);
+    printf("Título: %s\n", libro->titulo);
+    printf("Año de compra: %d\n", libro->anio_compra);
+    printf("Número de préstamos: %d\n", libro->num_prestamos);
+    printf("----------------------------------------------------------------------------------\n");
+}
+
+void imprimeTodosLosLibros(LIB* inicio) {
+    // Encuentra el libro que apunta al libro con la última clave que es menor o igual que la clave dada
+
     if (inicio == NULL) {
-        return inicio;
+        printf("No hay libros que imprimir");
+    }
+    else {
+
+        LIB* actual = inicio; // Comienza desde el inicio de la lista
+
+        // Recorre la lista mientras no sea NULL y el siguiente libro sea menor o igual a la clave
+        while (actual != NULL ) {
+            imprimeLibro(actual);
+            actual = actual->sig; // Avanza al siguiente libro
+        }
+    }
+}
+
+LIB* buscar_libro(LIB* inicio, int clave) {
+    // Encuentra el libro que apunta al libro con la última clave que es menor o igual que la clave dada
+
+    if (inicio == NULL) {
+        return inicio; // Regresa NULL si no hay libros en la lista
     }
 
     LIB* actual = inicio; // Comienza desde el inicio de la lista
+    LIB* sigActual = actual->sig; // Obtiene el siguiente libro
 
     // Recorre la lista mientras no sea NULL y el siguiente libro sea menor o igual a la clave
-    while (actual->sig != NULL && actual->id_libro <= clave) {
-        // Si encuentra un libro con clave mayor, se detiene
-        if ((actual->sig)->id_libro > clave) {
-            return actual; // Retorna el libro con la clave dada
-        }
+    while (sigActual != NULL && sigActual->id_libro <= clave) {
         actual = actual->sig; // Avanza al siguiente libro
+        sigActual = sigActual->sig; // Avanza al siguiente libro después del actual
     }
 
-    return actual; // Retorna NULL si no se encontró un libro con la clave dada o si la lista es vacía
+    return actual; // Retorna un puntero al libro que apunta al libro con la última clave menor o igual a la clave dada
 }
+
 
 
 LIB* crear_libro(int* numLibros) {
@@ -74,6 +103,7 @@ LIB* crear_libro(int* numLibros) {
 int main() {
     int metodo = 0;
     int numLibros = 0; 
+    LIB* inicio = NULL;
 
     printf("Bienvenido a la librería de Elmer \n");
     printf("1. Quiero insertar un libro \n");
@@ -88,19 +118,19 @@ int main() {
 
         switch (metodo) {
         case 1:
-            // Llamar a tu función para crear e insertar un libro
+            // Llamar a tu función para crear e insertar un libro 
             break;
         case 2:
             // Implementar la lógica para borrar un libro
             break;
         case 3:
-            // Implementar la lógica para contar el número de libros
+            printf("El número de libros que tenemos es: %d\n", numLibros);
             break;
         case 4:
             // Implementar la lógica para buscar un libro
             break;
         case 5:
-            // Implementar la lógica para mostrar todos los libros
+            imprimeTodosLosLibros(inicio);
             break;
         case -1:
             printf("Saliendo del programa.\n");
