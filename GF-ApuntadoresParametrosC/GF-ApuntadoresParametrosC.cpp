@@ -111,6 +111,19 @@ LIB* crear_libro() {
     return newLib;
 }
 
+void insertar_libro(LIB* inicio, int numLibros) {
+    LIB* nuevoLibro = crear_libro();
+    LIB* aux = buscar_libro(inicio, nuevoLibro->id_libro);
+    if (aux == NULL) {
+        inicio = nuevoLibro;
+    }
+    else {
+        nuevoLibro->sig = aux->sig;
+        aux->sig = nuevoLibro;
+    }
+    numLibros++;
+}
+
 int main() {
     int metodo = 0;
     int numLibros = 0; 
@@ -129,7 +142,7 @@ int main() {
 
         switch (metodo) {
         case 1:
-            // Llamar a tu función para crear e insertar un libro 
+            insertar_libro(inicio, numLibros);
             break;
         case 2:
             // Implementar la lógica para borrar un libro
