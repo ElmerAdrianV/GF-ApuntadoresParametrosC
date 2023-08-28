@@ -6,6 +6,7 @@
 #define MAX_LONG_APELLIDO 30
 #define MAX_LONG_TITULO 40
 
+
 typedef struct libros {
     int id_libro;
     char nombres_autor[MAX_LONG_NOMBRE];
@@ -17,10 +18,10 @@ typedef struct libros {
 } LIB;
 
 
-LIB* buscar_libro(LIB* inicio, int clave) {
+LIB* buscar_libro(LIB* inicio, int clave, int numLibros) {
     // Encuentra el libro que apunta al libro con la última clave que es menor o igual que la clave dada
 
-    if (inicio == NULL) {
+    if (numLibros == 0) {
         return inicio; // Regresa NULL si no hay libros en la lista
     }
 
@@ -41,29 +42,29 @@ void imprime_libro(LIB* libro) {
     printf("----------------------------------------------------------------------------------\n");
     printf("ID del libro: %d\n", libro->id_libro);
     printf("Autor: %s %s\n", libro->nombres_autor, libro->apellidos_autor);
-    printf("Título: %s\n", libro->titulo);
-    printf("Año de compra: %d\n", libro->anio_compra);
-    printf("Número de préstamos: %d\n", libro->num_prestamos);
+    printf("Titulo: %s\n", libro->titulo);
+    printf("Anio de compra: %d\n", libro->anio_compra);
+    printf("Numero de prestamos: %d\n", libro->num_prestamos);
     printf("----------------------------------------------------------------------------------\n");
 }
 
-void mostrar_libro(LIB* inicio) {
+void mostrar_libro(LIB* inicio, int numLibros) {
     int id_libro;
     printf("Ingresa el id del libro que desea que se muestre:\n");
-    printf("Identificador del libro: ");
+    printf("Identificador del libro: \n");
     scanf_s("%d", &id_libro); // Leer el ID del libro
-    LIB* libro = buscar_libro(inicio, id_libro);
+    LIB* libro = buscar_libro(inicio, id_libro, numLibros);
     if (libro->sig != NULL && libro->sig->id_libro == id_libro) {
         imprime_libro(libro->sig);
     }
     //else Lanzar posible excepcion
 }
 
-void los_libros(LIB* inicio) {
+void los_libros(LIB* inicio, int numLibros) {
     // Encuentra el libro que apunta al libro con la última clave que es menor o igual que la clave dada
 
-    if (inicio == NULL) {
-        printf("No hay libros que imprimir");
+    if (numLibros == 0) {
+        printf("No hay libros que imprimir\n");
     }
     else {
 
@@ -77,13 +78,13 @@ void los_libros(LIB* inicio) {
     }
 }
 
-LIB* crear_libro() {
-    LIB* newLib = (LIB*)malloc(sizeof(LIB));
+void crear_libro(LIB* newLib) {
 
     // Ingresar detalles del libro
     printf("Agregar datos para un nuevo libro:\n");
     printf("Identificador del libro: ");
     scanf_s("%d", &(newLib->id_libro)); // Leer el ID del libro
+    getchar(); // Consume the newline character left in the input buffer
 
     printf("Nombre del autor: ");
     fgets(newLib->nombres_autor, MAX_LONG_NOMBRE, stdin);
@@ -93,81 +94,91 @@ LIB* crear_libro() {
     fgets(newLib->apellidos_autor, MAX_LONG_APELLIDO, stdin);
     newLib->apellidos_autor[strcspn(newLib->apellidos_autor, "\n")] = '\0'; // Eliminar el carácter de nueva línea
 
-    printf("Título del libro: ");
+    printf("Titulo del libro: ");
     fgets(newLib->titulo, MAX_LONG_TITULO, stdin);
     newLib->titulo[strcspn(newLib->titulo, "\n")] = '\0'; // Eliminar el carácter de nueva línea
 
-    printf("Año de compra: ");
+    printf("Anio de compra: ");
     scanf_s("%d", &(newLib->anio_compra));
 
-    printf("Número de préstamos: ");
+    printf("Numero de prestamos: ");
     scanf_s("%d", &(newLib->num_prestamos));
 
     newLib->sig = NULL; // Inicializar el puntero 'sig'
-
-
-    return newLib;
 }
 
-void insertar_libro(LIB* inicio, int numLibros) {
-    LIB* nuevoLibro = crear_libro();
-    LIB* aux = buscar_libro(inicio, nuevoLibro->id_libro);
-    if (aux == NULL) {
-        inicio = nuevoLibro;
+void insertar_libro(LIB* inicio, int* numLibros) {
+    if (*numLibros == 0) {
+        crear_libro(inicio);
     }
     else {
-        nuevoLibro->sig = aux->sig;
-        aux->sig = nuevoLibro;
+        LIB* nuevoLibro = (LIB*)malloc(sizeof(LIB));
+        crear_libro(nuevoLibro);
+        LIB* aux = buscar_libro(inicio, nuevoLibro->id_libro, *numLibros);
+        if (aux == inicio && nuevoLibro->id_libro < inicio->id_libro) {
+            nuevoLibro->sig = inicio;
+            inicio = nuevoLibro;
+        }
+        else {
+            nuevoLibro->sig = aux->sig;
+            aux->sig = nuevoLibro;
+        }
     }
-    numLibros++;
+    (*numLibros)++;
 }
 
-void borrar_libro(LIB* inicio, int numLibros) 
+void borrar_libro(LIB* inicio, int* numLibros) 
 {
     int id_libro;
     printf("Ingresa el id del libro que desea borrar:\n");
     printf("Identificador del libro: ");
     scanf_s("%d", &id_libro); // Leer el ID del libro
-    LIB* libro = buscar_libro(inicio, id_libro);
+    LIB* libro = buscar_libro(inicio, id_libro,*numLibros);
     if (libro->sig != NULL && libro->sig->id_libro == id_libro) {
-        LIB* aux = libro->sig;
-        libro->sig = aux->sig;
-        free(aux);
-        numLibros--;
+        if (*numLibros == 1) {
+            free(inicio);
+        }
+        else {
+            LIB* aux = libro->sig;
+            libro->sig = aux->sig;
+            free(aux);
+        }
+        (*numLibros)--;
     }
     // No se encontro el libro
 }
 int main() {
     int metodo = 0;
     int numLibros = 0; 
-    LIB* inicio = NULL;
+    LIB* inicio = (LIB*) malloc(sizeof(LIB));
 
-    printf("Bienvenido a la librería de Elmer \n");
+    printf("Bienvenido a la libreria de Elmer \n");
     printf("1. Quiero insertar un libro \n");
     printf("2. Quiero borrar un libro \n");
-    printf("3. Quiero saber el número de libros\n");
+    printf("3. Quiero saber el numero de libros\n");
     printf("4. Quiero buscar un libro \n");
     printf("5. Quiero ver todos los libros\n");
     printf("-1. Salir\n"); // Incluir opción de salida
 
     do {
+        printf("Ingresa la tarea que quieres realizar\n");
         scanf_s("%d", &metodo);
 
         switch (metodo) {
         case 1:
-            insertar_libro(inicio, numLibros);
+            insertar_libro(inicio, &numLibros);
             break;
         case 2:
-            borrar_libro(inicio, numLibros);
+            borrar_libro(inicio, &numLibros);
             break;
         case 3:
             printf("El número de libros que tenemos es: %d\n", numLibros);
             break;
         case 4:
-            mostrar_libro(inicio);
+            mostrar_libro(inicio,numLibros);
             break;
         case 5:
-            los_libros(inicio);
+            los_libros(inicio,numLibros);
             break;
         case -1:
             printf("Saliendo del programa.\n");
