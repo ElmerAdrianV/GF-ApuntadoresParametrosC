@@ -6,6 +6,7 @@
 #define MAX_LONG_APELLIDO 30
 #define MAX_LONG_TITULO 40
 
+// Define una estructura para un libro
 typedef struct libros {
     int id_libro;
     char nombres_autor[MAX_LONG_NOMBRE];
@@ -16,12 +17,14 @@ typedef struct libros {
     struct libros* sig;
 } LIB;
 
+// Funcion para buscar un libro por su ID
 LIB* buscar_libro(LIB* inicio, int clave) {
     if (inicio == NULL) {
         return NULL;
     }
 
     LIB* actual = inicio;
+    // Para cuando acabe de recorrer la lista o sobre pase la clave ordenada
     while (actual != NULL && actual->id_libro <= clave) {
         if (actual->id_libro == clave) {
             return actual;
@@ -32,6 +35,7 @@ LIB* buscar_libro(LIB* inicio, int clave) {
     return NULL;
 }
 
+// Funcion para imprimir detalles de un libro
 void imprime_libro(LIB* libro) {
     if (libro == NULL) {
         printf("Libro no encontrado.\n");
@@ -41,17 +45,19 @@ void imprime_libro(LIB* libro) {
         printf("ID del libro: %d\n", libro->id_libro);
         printf("Autor: %s %s\n", libro->nombres_autor, libro->apellidos_autor);
         printf("Titulo: %s\n", libro->titulo);
-        printf("Anio de compra: %d\n", libro->anio_compra);
+        printf("Ano de compra: %d\n", libro->anio_compra);
         printf("Numero de prestamos: %d\n", libro->num_prestamos);
         printf("----------------------------------------------------------------------------------\n");
     }
 }
 
+// Funcion para mostrar todos los libros
 void mostrar_libros(LIB* inicio) {
     if (inicio == NULL) {
         printf("No hay libros que mostrar.\n");
     }
     else {
+        //Iteramos sobre todos los libros que hay en la lista
         LIB* actual = inicio;
         while (actual != NULL) {
             imprime_libro(actual);
@@ -60,28 +66,29 @@ void mostrar_libros(LIB* inicio) {
     }
 }
 
+// Funcion para crear un nuevo libro
 LIB* crear_libro() {
     LIB* newLib = (LIB*)malloc(sizeof(LIB));
 
-// Ingresar detalles del libro
+    // Ingresar detalles del libro
     printf("Agregar datos para un nuevo libro:\n");
     printf("Identificador del libro: ");
     scanf_s("%d", &(newLib->id_libro)); // Leer el ID del libro
-    getchar(); // Consume the newline character left in the input buffer
+    getchar(); // Consume el caracter de nueva linea en el bufer de entrada
 
     printf("Nombre del autor: ");
     fgets(newLib->nombres_autor, MAX_LONG_NOMBRE, stdin);
-    newLib->nombres_autor[strcspn(newLib->nombres_autor, "\n")] = '\0'; // Eliminar el carácter de nueva línea
+    newLib->nombres_autor[strcspn(newLib->nombres_autor, "\n")] = '\0'; // Eliminar el caracter de nueva linea
 
     printf("Apellido del autor: ");
     fgets(newLib->apellidos_autor, MAX_LONG_APELLIDO, stdin);
-    newLib->apellidos_autor[strcspn(newLib->apellidos_autor, "\n")] = '\0'; // Eliminar el carácter de nueva línea
+    newLib->apellidos_autor[strcspn(newLib->apellidos_autor, "\n")] = '\0'; // Eliminar el caracter de nueva linea
 
     printf("Titulo del libro: ");
     fgets(newLib->titulo, MAX_LONG_TITULO, stdin);
-    newLib->titulo[strcspn(newLib->titulo, "\n")] = '\0'; // Eliminar el carácter de nueva línea
+    newLib->titulo[strcspn(newLib->titulo, "\n")] = '\0'; // Eliminar el caracter de nueva linea
 
-    printf("Anio de compra: ");
+    printf("Ano de compra: ");
     scanf_s("%d", &(newLib->anio_compra));
 
     printf("Numero de prestamos: ");
@@ -91,29 +98,44 @@ LIB* crear_libro() {
     return newLib;
 }
 
+LIB* busca_ultimo_libro_con_clave_menor(LIB* inicio, int id_libro_objetivo) {
+    // Caso donde se inserta en medio o al final de la lista
+    LIB* actual = inicio;
+    // Se busca el ultimo libro con clave menor al nuevo libro para mantener el orden
+    while (actual->sig != NULL && actual->sig->id_libro < id_libro_objetivo) {
+        actual = actual->sig;
+    }
+    return actual;
+}
+
+// Funcion para insertar un libro en orden segun el ID
 void insertar_libro(LIB** inicio) {
     LIB* nuevoLibro = crear_libro();
 
+    //Caso donde se inserta un libro al inicio de la lista
     if (*inicio == NULL || nuevoLibro->id_libro < (*inicio)->id_libro) {
         nuevoLibro->sig = *inicio;
         *inicio = nuevoLibro;
     }
     else {
-        LIB* actual = *inicio;
-        while (actual->sig != NULL && actual->sig->id_libro < nuevoLibro->id_libro) {
-            actual = actual->sig;
-        }
+        // Caso donde se inserta en medio o al final de la lista
+        // Se busca el ultimo libro con clave menor al nuevo libro para mantener el orden
+        LIB* actual = busca_ultimo_libro_con_clave_menor(*inicio, nuevoLibro->id_libro);
+        //Se hace el nuevo enlace correspondiente
         nuevoLibro->sig = actual->sig;
         actual->sig = nuevoLibro;
     }
 }
 
+// Funcion para borrar un libro por su ID
 void borrar_libro(LIB** inicio, int id_libro) {
+   // Caso de la lista vacia
     if (*inicio == NULL) {
         printf("No hay libros que borrar.\n");
         return;
     }
 
+    // Caso donde se borra el primer elemento de la lista
     if ((*inicio)->id_libro == id_libro) {
         LIB* aux = *inicio;
         *inicio = (*inicio)->sig;
@@ -121,12 +143,11 @@ void borrar_libro(LIB** inicio, int id_libro) {
         return;
     }
 
-    LIB* actual = *inicio;
-    while (actual->sig != NULL && actual->sig->id_libro != id_libro) {
-        actual = actual->sig;
-    }
+    // Se busca el ultimo libro con clave menor al nuevo libro para mantener el orden
+    LIB* actual = busca_ultimo_libro_con_clave_menor(*inicio,id_libro);
 
-    if (actual->sig != NULL) {
+    //Si encontramos el libro con el id, lo eliminamos
+    if (actual->sig != NULL && actual->sig->id_libro == id_libro) {
         LIB* aux = actual->sig;
         actual->sig = aux->sig;
         free(aux);
@@ -136,9 +157,11 @@ void borrar_libro(LIB** inicio, int id_libro) {
     }
 }
 
+// Funcion para contar el numero de libros en la lista
 int num_libros(LIB* inicio) {
     int count = 0;
     LIB* actual = inicio;
+    //Se recorre la lista completa contando
     while (actual != NULL) {
         count++;
         actual = actual->sig;
@@ -146,6 +169,7 @@ int num_libros(LIB* inicio) {
     return count;
 }
 
+// Funcion para liberar la memoria de la lista de libros
 void liberar_memoria(LIB* inicio) {
     while (inicio != NULL) {
         LIB* aux = inicio;
