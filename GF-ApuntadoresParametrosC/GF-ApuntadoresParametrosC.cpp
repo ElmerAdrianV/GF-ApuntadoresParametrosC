@@ -36,7 +36,7 @@ LIB* buscar_libro(LIB* inicio, int clave) {
 }
 
 // Funcion para imprimir detalles de un libro
-void imprime_libro(LIB* libro) {
+void mostrar_libro(LIB* libro) {
     if (libro == NULL) {
         printf("Libro no encontrado.\n");
     }
@@ -52,7 +52,7 @@ void imprime_libro(LIB* libro) {
 }
 
 // Funcion para mostrar todos los libros
-void mostrar_libros(LIB* inicio) {
+void los_libros(LIB* inicio) {
     if (inicio == NULL) {
         printf("No hay libros que mostrar.\n");
     }
@@ -60,7 +60,7 @@ void mostrar_libros(LIB* inicio) {
         //Iteramos sobre todos los libros que hay en la lista
         LIB* actual = inicio;
         while (actual != NULL) {
-            imprime_libro(actual);
+            mostrar_libro(actual);
             actual = actual->sig;
         }
     }
@@ -69,32 +69,37 @@ void mostrar_libros(LIB* inicio) {
 // Funcion para crear un nuevo libro
 LIB* crear_libro() {
     LIB* newLib = (LIB*)malloc(sizeof(LIB));
+    if (newLib == NULL) {
+        printf("ERROR: No hay mas memoria disponible");
+    }
+    else {
+        // Ingresar detalles del libro
+        printf("Agregar datos para un nuevo libro:\n");
+        printf("Identificador del libro: ");
+        scanf_s("%d", &(newLib->id_libro)); // Leer el ID del libro
+        getchar(); // Consume el caracter de nueva linea en el bufer de entrada
 
-    // Ingresar detalles del libro
-    printf("Agregar datos para un nuevo libro:\n");
-    printf("Identificador del libro: ");
-    scanf_s("%d", &(newLib->id_libro)); // Leer el ID del libro
-    getchar(); // Consume el caracter de nueva linea en el bufer de entrada
+        printf("Nombre del autor: ");
+        fgets(newLib->nombres_autor, MAX_LONG_NOMBRE, stdin);
+        newLib->nombres_autor[strcspn(newLib->nombres_autor, "\n")] = '\0'; // Eliminar el caracter de nueva linea
 
-    printf("Nombre del autor: ");
-    fgets(newLib->nombres_autor, MAX_LONG_NOMBRE, stdin);
-    newLib->nombres_autor[strcspn(newLib->nombres_autor, "\n")] = '\0'; // Eliminar el caracter de nueva linea
+        printf("Apellido del autor: ");
+        fgets(newLib->apellidos_autor, MAX_LONG_APELLIDO, stdin);
+        newLib->apellidos_autor[strcspn(newLib->apellidos_autor, "\n")] = '\0'; // Eliminar el caracter de nueva linea
 
-    printf("Apellido del autor: ");
-    fgets(newLib->apellidos_autor, MAX_LONG_APELLIDO, stdin);
-    newLib->apellidos_autor[strcspn(newLib->apellidos_autor, "\n")] = '\0'; // Eliminar el caracter de nueva linea
+        printf("Titulo del libro: ");
+        fgets(newLib->titulo, MAX_LONG_TITULO, stdin);
+        newLib->titulo[strcspn(newLib->titulo, "\n")] = '\0'; // Eliminar el caracter de nueva linea
 
-    printf("Titulo del libro: ");
-    fgets(newLib->titulo, MAX_LONG_TITULO, stdin);
-    newLib->titulo[strcspn(newLib->titulo, "\n")] = '\0'; // Eliminar el caracter de nueva linea
+        printf("Ano de compra: ");
+        scanf_s("%d", &(newLib->anio_compra));
 
-    printf("Ano de compra: ");
-    scanf_s("%d", &(newLib->anio_compra));
+        printf("Numero de prestamos: ");
+        scanf_s("%d", &(newLib->num_prestamos));
 
-    printf("Numero de prestamos: ");
-    scanf_s("%d", &(newLib->num_prestamos));
-
-    newLib->sig = NULL;
+        newLib->sig = NULL;
+    }
+    
     return newLib;
 }
 
@@ -111,19 +116,23 @@ LIB* busca_ultimo_libro_con_clave_menor(LIB* inicio, int id_libro_objetivo) {
 // Funcion para insertar un libro en orden segun el ID
 void insertar_libro(LIB** inicio) {
     LIB* nuevoLibro = crear_libro();
-
-    //Caso donde se inserta un libro al inicio de la lista
-    if (*inicio == NULL || nuevoLibro->id_libro < (*inicio)->id_libro) {
-        nuevoLibro->sig = *inicio;
-        *inicio = nuevoLibro;
+    if (nuevoLibro == NULL) {
+        printf("ERROR: Crear libro fallo!");
     }
     else {
-        // Caso donde se inserta en medio o al final de la lista
-        // Se busca el ultimo libro con clave menor al nuevo libro para mantener el orden
-        LIB* actual = busca_ultimo_libro_con_clave_menor(*inicio, nuevoLibro->id_libro);
-        //Se hace el nuevo enlace correspondiente
-        nuevoLibro->sig = actual->sig;
-        actual->sig = nuevoLibro;
+        //Caso donde se inserta un libro al inicio de la lista
+        if (*inicio == NULL || nuevoLibro->id_libro < (*inicio)->id_libro) {
+            nuevoLibro->sig = *inicio;
+            *inicio = nuevoLibro;
+        }
+        else {
+            // Caso donde se inserta en medio o al final de la lista
+            // Se busca el ultimo libro con clave menor al nuevo libro para mantener el orden
+            LIB* actual = busca_ultimo_libro_con_clave_menor(*inicio, nuevoLibro->id_libro);
+            //Se hace el nuevo enlace correspondiente
+            nuevoLibro->sig = actual->sig;
+            actual->sig = nuevoLibro;
+        }
     }
 }
 
@@ -217,11 +226,11 @@ int main() {
             printf("Ingresa el ID del libro que deseas buscar: ");
             scanf_s("%d", &id);
             LIB* libroEncontrado = buscar_libro(inicio, id);
-            imprime_libro(libroEncontrado);
+            mostrar_libro(libroEncontrado);
             break;
         }
         case 5:
-            mostrar_libros(inicio);
+            los_libros(inicio);
             break;
         case -1:
             printf("Saliendo del programa.\n");
